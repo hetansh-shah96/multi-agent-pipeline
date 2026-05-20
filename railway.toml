@@ -1,0 +1,19 @@
+# Root railway.toml — documents the monorepo structure.
+# Each service sub-directory has its own railway.toml with build/deploy config.
+# When adding services in Railway dashboard, point each to its subdirectory:
+#
+#   dashboard     → Root Directory: dashboard/
+#   orchestrator  → Root Directory: orchestrator/
+#   agent-debugger→ Root Directory: agent-debugger/
+#   agent-reviewer→ Root Directory: agent-reviewer/
+#   agent-security→ Root Directory: agent-security/
+#   agent-tests   → Root Directory: agent-tests/
+#   agent-docs    → Root Directory: agent-docs/
+#
+# Redis and Postgres are Railway plugins — add them from the Railway dashboard.
+# Railway auto-injects REDIS_URL and DATABASE_URL into all services.
+
+[deploy]
+healthcheckPath = "/health"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
