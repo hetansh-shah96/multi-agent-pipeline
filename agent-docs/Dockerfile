@@ -1,9 +1,9 @@
 FROM node:20-alpine
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 RUN npx prisma generate
-RUN npm prune --production
+RUN npm prune --omit=dev
 EXPOSE 3000
 CMD ["node", "index.js"]
