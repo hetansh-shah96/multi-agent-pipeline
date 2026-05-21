@@ -175,21 +175,25 @@ app.get('/task/:id', async (req, res) => {
 
 // ── STARTUP ────────────────────────────────────────────────────────────────────
 async function start() {
-  // Run DB migrations on startup (safe to run repeatedly)
-  const { execSync } = require('child_process')
-  try {
-    execSync('npx prisma migrate deploy', { stdio: 'inherit' })
-  } catch (e) {
-    console.warn('[prisma] migrate deploy failed (may be first run):', e.message)
-  }
+  // Start HTTP server first so Railway healthcheck passes immediately
+  await new Promise(resolve => server.listen(PORT, () => {
+    console.log(`[orchestrator] HTTP+WS listening on port ${PORT}`)
+    resolve()
+  }))
 
+  // Connect Redis
   await queueRedis.connect()
   await subRedis.connect()
   await pubRedis.connect()
 
-  server.listen(PORT, () =>
-    console.log(`[orchestrator] HTTP+WS listening on port ${PORT}`)
-  )
+  // Push schema to DB (creates tables without needing migration files)
+  const { execSync } = require('child_process')
+  try {
+    execSync('npx prisma db push --skip-generate --accept-data-loss', { stdio: 'inherit' })
+    console.log('[prisma] schema pushed successfully')
+  } catch (e) {
+    console.warn('[prisma] db push failed:', e.message)
+  }
 }
 
 start().catch(err => {
