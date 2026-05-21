@@ -66,9 +66,7 @@ wss.on('connection', (ws) => {
 })
 
 // ── REDIS PUB/SUB: relay agent updates to dashboard ───────────────────────────
-subRedis.subscribe('agent-updates', (err) => {
-  if (err) console.error('[redis] subscribe error:', err.message)
-})
+// NOTE: subscribe() is called in start() after explicit connect()
 
 subRedis.on('message', async (_channel, raw) => {
   try {
@@ -185,6 +183,10 @@ async function start() {
   await queueRedis.connect()
   await subRedis.connect()
   await pubRedis.connect()
+
+  // Subscribe after connection is established
+  await subRedis.subscribe('agent-updates')
+  console.log('[redis] subscribed to agent-updates')
 
   // Push schema to DB (creates tables without needing migration files)
   const { execSync } = require('child_process')
