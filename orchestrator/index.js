@@ -9,7 +9,9 @@ const { v4: uuid } = require('uuid')
 const app    = express()
 const server = http.createServer(app)
 const wss    = new WebSocketServer({ server })
-const prisma = new PrismaClient()
+const prisma = new PrismaClient({
+  datasources: { db: { url: process.env.DATABASE_URL } },
+})
 const PORT   = process.env.PORT || 3001
 
 // ── REDIS CONNECTIONS ──────────────────────────────────────────────────────────

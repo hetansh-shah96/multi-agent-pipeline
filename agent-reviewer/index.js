@@ -8,7 +8,7 @@ const AGENT_NAME  = 'reviewer'
 const QUEUE_NAME  = 'agent-reviewer-queue'
 const MODEL       = 'claude-sonnet-4-5'
 
-const prisma      = new PrismaClient()
+const prisma      = new PrismaClient({ datasources: { db: { url: process.env.DATABASE_URL } } })
 const anthropic   = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY })
 
 const redisOpts = { maxRetriesPerRequest: null, enableReadyCheck: false }
