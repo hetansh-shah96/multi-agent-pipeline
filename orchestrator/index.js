@@ -179,12 +179,11 @@ async function start() {
     resolve()
   }))
 
-  // Connect Redis
-  await queueRedis.connect()
+  // subRedis and pubRedis are plain ioredis clients with lazyConnect — connect explicitly.
+  // queueRedis is managed by BullMQ which connects it automatically; do NOT call connect() on it.
   await subRedis.connect()
   await pubRedis.connect()
 
-  // Subscribe after connection is established
   await subRedis.subscribe('agent-updates')
   console.log('[redis] subscribed to agent-updates')
 
