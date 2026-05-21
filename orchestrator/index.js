@@ -66,9 +66,7 @@ wss.on('connection', (ws) => {
 })
 
 // ── REDIS PUB/SUB: relay agent updates to dashboard ───────────────────────────
-subRedis.subscribe('agent-updates', (err) => {
-  if (err) console.error('[redis] subscribe error:', err.message)
-})
+// NOTE: subscribe() is called inside start() after connections are established.
 
 subRedis.on('message', async (_channel, raw) => {
   try {
@@ -184,8 +182,12 @@ async function start() {
   }
 
   await queueRedis.connect()
-  await subRedis.connect()
   await pubRedis.connect()
+
+  // subscribe() auto-connects subRedis — do not call subRedis.connect() separately
+  subRedis.subscribe('agent-updates', (err) => {
+    if (err) console.error('[redis] subscribe error:', err.message)
+  })
 
   server.listen(PORT, () =>
     console.log(`[orchestrator] HTTP+WS listening on port ${PORT}`)
